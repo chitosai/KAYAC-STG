@@ -3,8 +3,35 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
+	<link rel="stylesheet" href="assets/x.css">
 </head>
 <body>
-	<script src=""></script>
+	<div id="stage">
+		<div id="game">
+			<div id="hpbar">
+				<!-- div.h stands for healthy and div.d for damaged -->
+			</div>
+			<div id="earth"></div>
+			<div id="warship"></div>
+			<!-- put all the ufo inside this div -->
+			<div id="ufos"></div>
+			<!-- and bullets here -->
+			<div id="bullets"></div>
+		</div>
+		<!-- score board -->
+		<div id="gameover-blink"></div>
+		<div id="gameover">
+			<div id="score-wrapper">
+				<img src="assets/tw.png">
+				<div id="board">
+					<p>SCORE</p>
+					<h1 id="score">0</h1>
+					<a href="#" id="tsubuyaku">つぶやく</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery-2.1.4.min.js"></script>
+	<script src="js/x.js"></script>
 </body>
 </html>
