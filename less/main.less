@@ -7,7 +7,7 @@ div{
 	margin: 0;
 	padding: 0;
 }
-#stage{
+#game{
 	background: url('bg.png') #0B0B0C;
 	margin: auto;
 	width: 465px;
@@ -18,8 +18,12 @@ div{
 	bottom: 0;
 	right: 0;
 }
-#game{
+#stage{
 	display: none;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
 	&.active{
 		display: block;
 	}
@@ -59,14 +63,14 @@ div{
 	bottom: 30px;
 	left: 190px;
 }
-#ufos{
-	.ufo{
-		background: url('ufo.png');
-		width: 100px;
-		height: 80px;
-		position: absolute;
-	}
+
+.ufo{
+	background: url('ufo.png');
+	width: 100px;
+	height: 80px;
+	position: absolute;
 }
+
 #bullets{
 	.bullet{
 		background: url('bullet.png');
@@ -75,21 +79,39 @@ div{
 		position: absolute;
 	}
 }
-#gameover-blink{
+@keyframes blink{
+	0% { opacity: 0; }
+	30% { opacity: 1; }
+	100% { opacity: 0; }
+}
+@-webkit-keyframes blink{
+	0% { opacity: 0; }
+	30% { opacity: 1; }
+	100% { opacity: 0; }
+}
+#blink{
 	background: #fff;
 	width: 100%;
 	height: 100%;
+	opacity: 0;
 	pointer-events: none;
 	position: absolute;
 	top: 0;
 	left: 0;
 	z-index: 999;
+	&.active{
+		animation: blink 1s ease;
+		-webkit-animation: blink 1s ease 0;
+	}
 }
 #gameover{
 	background: rgba(0, 0, 0, .75);
 	width: 100%;
 	height: 100%;
 	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
 	&.active{
 		display: block;
 	}
