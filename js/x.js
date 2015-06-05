@@ -6,13 +6,6 @@ Array.prototype.remove = function(el) {
 	this.splice(index, 1);
 	return this;
 }
-// empty a array, removing its all children and the children's dom
-Array.prototype.destroy = function() {
-	var tmp = null;
-	while( tmp = this.pop() ) {
-		delete tmp;
-	}
-}
 // load attributes from super class
 Object.prototype.super = function(x, y) {
 	var c = this.constructor;
@@ -133,7 +126,7 @@ UFO.clear = function() {
 	// stop the generate loop
 	clearInterval(UFO.n);
 	// clear current elements
-	UFO.list.destroy();
+	UFO.list = [];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////// BULLET
@@ -175,7 +168,7 @@ BULLET.y = WARSHIP.y;
 BULLET.image = 'bullet';
 BULLET.list  = [];
 BULLET.clear = function() {
-	BULLET.list.destroy();
+	BULLET.list = [];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////// BOOM
@@ -202,7 +195,7 @@ BOOM.prototype.destroy = function() {
 	delete this;
 }
 BOOM.clear = function() {
-	BOOM.list.destroy();
+	BOOM.list = [];
 }
 BOOM.image = 'boom';
 BOOM.list = [];
