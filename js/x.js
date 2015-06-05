@@ -3,6 +3,8 @@ GAME_OVER = true;
 GAME_SCORE = 0;
 STAGE_WIDTH = 465;
 STAGE_HEIGHT = 465;
+TWITTER_API = 'https://twitter.com/intent/tweet?text=';
+TWITTER_TEXT = 'Just now when you were asleep I have protected the earth by shooting {$score} ufo down!';
 
 // quick method
 $.fn.active = function() {
@@ -27,9 +29,8 @@ function TIMER() {
 }
 TIMER.last = new Date().getTime();
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////// WARSHIP
 
-// define warship
 function WARSHIP() {
 	var self = this;
 	self.x = 240;
@@ -72,9 +73,8 @@ WARSHIP.width = 96/2;
 WARSHIP.speed = 8;
 WARSHIP.key   = {37: false, 39: false, 90: false}; // save currently pressed key
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////// UFO
 
-// define UFO
 function UFO(x) {
 	// private var
 	this.x = x;
@@ -89,10 +89,21 @@ function UFO(x) {
 UFO.prototype.loop = function() {
 	this.y += UFO.speed;
 	// check if current ufo has hit the earth
-	if( this.y < (STAGE_HEIGHT-120) )
+	if( this.y < (STAGE_HEIGHT-120) ) 
 		this.dom.css('top', this.y);
-	else 
+	else {
+		// hit the earth!
 		this.destroy();
+		// blink the earth
+		EARTH.hit();
+	}
+}
+// hit by player
+UFO.prototype.hit = function() {
+	// incr score
+	GAME_SCORE++;
+	// call self-destroy
+	this.destroy();
 }
 // destroy
 UFO.prototype.destroy = function() {
@@ -115,9 +126,8 @@ UFO.g     = function() { // generate new ufo
 	UFO.list.push(new UFO(x));
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////// BULLET
 
-// define bullet
 function BULLET(x) {
 	// the x should be where warship is
 	this.x = x;
@@ -139,7 +149,7 @@ BULLET.prototype.loop = function() {
 		var ufo = UFO.list[i];
 		// this condition may lose 6px, but it's much simpler & faster than precise condition
 		if( this.x > ufo.left && this.x < ufo.right && this.y < ufo.y + UFO.height ) {
-			ufo.destroy();
+			ufo.hit();
 			// boooom
 			new BOOM(this.x, this.y);
 		}
@@ -157,9 +167,8 @@ BULLET.width = 24/2;
 BULLET.height= 12;
 BULLET.list  = [];
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////// BOOM
 
-// define bom
 function BOOM(x, y) {
 	var self = this;
 	self.dom = $('<div>').addClass('boom').css({'left': x - BOOM.width, 'top': y - BOOM.height}).appendTo(stage);
@@ -173,7 +182,63 @@ function BOOM(x, y) {
 BOOM.width = 120/2;
 BOOM.height = 120/2;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////// EARTH
+
+EARTH = new Object();
+EARTH.dom = null;
+EARTH.tick = null; // timeout to remove the 'hit' class
+EARTH.hit = function() {
+	// decrease hp
+	HP.decr();
+	// set:width to trigger reflow to force replay hit animation every time
+	if( EARTH.dom.hasClass('hit') ) {
+		EARTH.dom.removeClass('hit').width('100%');
+		clearTimeout(EARTH.tick);
+	}
+	EARTH.dom.addClass('hit');
+	EARTH.tick = setTimeout(function() {
+		EARTH.dom.removeClass('hit');
+	}, 1500);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////// HP BAR
+
+HP = function(type) {
+	if( type != 'h' && type != 'd' ) return;
+	this.dom = $('<span>').addClass(type).appendTo(HP.bar);
+	HP.list.push(this);
+}
+// initialize the hp bar: put 3 healthy heart inside
+HP.init = function() {
+	// reset hp
+	HP.hp = 4;
+	// clear former hp bar
+	HP.bar = $('#hpbar').empty();
+	HP.list = [];
+	// put new
+	for( var i = 0; i < 3; i++ ) {
+		var hp = new HP('h');
+	}
+}
+// when earth is hit...
+HP.decr = function() {
+	// remove the first blood in hp bar
+	var h = HP.list.shift();
+	h.dom.remove();
+	delete h;
+	// push a new one in
+	new HP('d');
+	// decr hp
+	HP.hp--;
+	// check gameover?
+	if( HP.hp == 0 )
+		end();
+}
+HP.hp = 4;
+HP.bar = null;
+HP.list = [];
+
+////////////////////////////////////////////////////////////////////////////////////////////////// MAIN 
 
 // main logical
 
@@ -182,10 +247,11 @@ BOOM.height = 120/2;
 function init() {
 	game  = $('#game');
 	stage = $('#stage');
-	earth = $('#earth');
-	hp    = $('#hpbar');
 	blink = $('#blink');
 	board = $('#gameover');
+	score = $('#score');
+	twitter = $('#tsubuyaku');
+	EARTH.dom = $('#earth');
 	warship = new WARSHIP();
 	// 
 	start();
@@ -195,6 +261,12 @@ function init() {
 function start() {
 	// set GAME_OVER to false
 	GAME_OVER = false;
+	// init the score
+	GAME_SCORE = 0;
+	// move warship to initial position
+	warship.init();
+	// initialize hp bar
+	HP.init();
 	// show the game stage
 	active_stage();
 	// start generating new ufo
@@ -239,10 +311,6 @@ function loop() {
 
 // put all the elements to their inital position and show the stage
 function active_stage() {
-	// move warship to initial position
-	warship.init();
-	// initialize hp bar
-	for(var i = 0; i < 3; i++ ) $('<span>').addClass('h').appendTo(hp);
 	// hide score board
 	board.deactive();
 	// show game stage, rock!
@@ -255,12 +323,15 @@ function deactive_stage() {
 	stage.deactive();
 	// blink animation
 	blink.active();
+	setTimeout(function() { blink.deactive(); }, 1000);
+	// fill the score
+	score.text(GAME_SCORE);
+	// prepare the twitter share link
+	twitter.attr('href', TWITTER_API + TWITTER_TEXT.replace('{$score}', GAME_SCORE));
 	// show score board
 	board.active();
 	// remove elements
 	$('.ufo, .bullet, .bom').remove();
-	// clear hpbar
-	hp.empty();
 }
 
 window.onload = init;

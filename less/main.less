@@ -7,6 +7,10 @@ div{
 	margin: 0;
 	padding: 0;
 }
+
+// 
+// game stage
+// 
 #game{
 	background: url('bg.png') #0B0B0C;
 	margin: auto;
@@ -36,8 +40,18 @@ div{
 	position: absolute;
 	bottom: -1px;
 	left: 0;
-	&.hit{
-		background-position: 0 50px;
+	&::after{
+		background: url('earth.png') 0 -50px;
+		content: "";
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		position: absolute;
+		left: 0;
+		bottom: 0;
+	}
+	&.hit::after{
+		animation: hit 1.5s linear;
 	}
 }
 #hpbar{
@@ -79,14 +93,6 @@ div{
 	height: 12px;
 	position: absolute;
 }
-@keyframes fadeout{
-	0% { opacity: 1; }
-	100%{ opacity: 0;}
-}
-@-webkit-keyframes fadeout{
-	0% { opacity: 1; }
-	100%{ opacity: 0;}
-}
 .boom{
 	background: url('bom.png');
 	width: 120px;
@@ -95,17 +101,6 @@ div{
 	position: absolute;
 	z-index: 3;
 	animation: fadeout 1s ease;
-	-webkit-animation: fadeout 1s ease 0;
-}
-@keyframes blink{
-	0% { opacity: 0; }
-	30% { opacity: 1; }
-	100% { opacity: 0; }
-}
-@-webkit-keyframes blink{
-	0% { opacity: 0; }
-	30% { opacity: 1; }
-	100% { opacity: 0; }
 }
 #blink{
 	background: #fff;
@@ -118,8 +113,7 @@ div{
 	left: 0;
 	z-index: 999;
 	&.active{
-		animation: blink 1s ease;
-		-webkit-animation: blink 1s ease 0;
+		animation: blink 1.1s ease;
 	}
 }
 #gameover{
@@ -179,4 +173,35 @@ div{
 			background: #E68844;
 		}
 	}
+	#restart{
+		color: #FFF;
+		font-weight: bold;
+		text-decoration: none;
+		position: absolute;
+		right: 15px;
+		bottom: 10px;
+		transition: all .1s ease;
+		&:hover{
+			transform: scale(1.2) rotate(-10deg);
+		}
+	}
+}
+
+//
+// animations
+// 
+@keyframes fadeout{
+	0% { opacity: 1; }
+	100%{ opacity: 0;}
+}
+@keyframes blink{
+	0% { opacity: 0; }
+	30% { opacity: 1; }
+	100% { opacity: 0; }
+}
+@keyframes hit{
+	0%{ opacity: 1; }
+	25%{ opacity: 0;}
+	50%{opacity: 1;}
+	75%{opacity: 0;}
 }

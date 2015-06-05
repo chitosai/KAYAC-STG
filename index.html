@@ -7,23 +7,24 @@
 </head>
 <body>
 	<div id="game">
+		<!-- game stage -->
 		<div id="stage">
-			<div id="hpbar">
-				<!-- div.h stands for healthy and div.d for damaged -->
-			</div>
+			<div id="hpbar"></div>
 			<div id="earth"></div>
 		</div>
-		<!-- score board -->
+		<!-- blink overlay -->
 		<div id="blink"></div>
+		<!-- score board -->
 		<div id="gameover">
 			<div id="score-wrapper">
 				<img src="assets/tw.png">
 				<div id="board">
 					<p>SCORE</p>
 					<h1 id="score">0</h1>
-					<a href="#" id="tsubuyaku">つぶやく</a>
+					<a href="#" target="_blank" id="tsubuyaku">つぶやく</a>
 				</div>
 			</div>
+			<a href="javascript: start();" id="restart">Play again!</a>
 		</div>
 	</div>
 	<script src="js/jquery-2.1.4.min.js"></script>
