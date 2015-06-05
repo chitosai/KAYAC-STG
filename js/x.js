@@ -43,7 +43,7 @@ Element.prototype.y = function(y) {
 }
 // force the element to reflow by setting element's width
 Element.prototype.reflow = function() {
-	this.style.width = '100%';
+	this.style.width = this.clientWidth ? this.clientWidth + 'px' : '100%';
 	return this;
 }
 // put the element onto the stage
@@ -66,7 +66,7 @@ Element.prototype.deactive = function() {
 	this.removeClass('active');
 	return this;
 }
-// extens Array
+// extends Array
 // add remove method for array
 Array.prototype.remove = function(el) {
 	var index = this.indexOf(el);
@@ -101,42 +101,43 @@ TIMER.last = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////// WARSHIP
 
-function WARSHIP() {
-	var self = this;
-	self.x = 240;
-	self.dom = el('div').setId('warship').x(self.x - WARSHIP.width).debut();
+WARSHIP = new Object();
+// real init, call this method only one time
+WARSHIP.init = function() {
+	WARSHIP.dom = document.getElementById('warship');
 	// bind keydown event
 	window.on('keydown', function(e) {
 		WARSHIP.key[e.keyCode] = true;
-		// fire
-		if( e.keyCode == 90 ) self.fire();
+		// fire ↓ don't put this function to WARSHIP.loop, or it will be shooting too fast
+		if( e.keyCode == 90 ) WARSHIP.fire();
 	}).on('keyup', function(e) {
 		WARSHIP.key[e.keyCode] = false;
 	});
-}
-// move warship on keydown
-WARSHIP.prototype.loop = function() {
-	// dispatch
-	if( WARSHIP.key[37] ) {
-		this.x -= WARSHIP.speed; 
-		this.x = this.x > 0 ? this.x : 0;
-	}
-	if( WARSHIP.key[39] ) {
-		this.x += WARSHIP.speed; 
-		this.x = this.x < STAGE_WIDTH ? this.x : STAGE_WIDTH;
-	}
-	// move the ship
-	this.dom.x(this.x - WARSHIP.width);
-}
-// fire!
-WARSHIP.prototype.fire = function() {
-	var bullet = new BULLET(this.x);
-	BULLET.list.push(bullet);
+	// use _init to override init
+	WARSHIP.init = WARSHIP._init;
 }
 // put the warship to its initial position
-WARSHIP.prototype.init = function() {
-	this.x = 240;
-	this.dom.x(this.x);
+WARSHIP._init = function() {
+	WARSHIP.x = 240;
+	WARSHIP.dom.x(WARSHIP.x);
+}
+// move warship on keydown
+WARSHIP.loop = function() {
+	// dispatch
+	if( WARSHIP.key[37] ) {
+		WARSHIP.x -= WARSHIP.speed; 
+		WARSHIP.x = WARSHIP.x > 0 ? WARSHIP.x : 0;
+	}
+	if( WARSHIP.key[39] ) {
+		WARSHIP.x += WARSHIP.speed; 
+		WARSHIP.x = WARSHIP.x < STAGE_WIDTH ? WARSHIP.x : STAGE_WIDTH;
+	}
+	// move the ship
+	WARSHIP.dom.x(WARSHIP.x - WARSHIP.width);
+}
+// fire!
+WARSHIP.fire = function() {
+	new BULLET(this.x);
 }
 // static var
 WARSHIP.width = 96/2;
@@ -153,6 +154,8 @@ function UFO(x) {
 	this.left = this.x - UFO.width;
 	this.right = this.x + UFO.width;
 	this.dom = el('div').addClass('ufo').x(this.x-UFO.width).y(this.y).debut();
+	// append
+	UFO.list.push(this);
 }
 // instance methods
 // main loop
@@ -188,20 +191,19 @@ UFO.speed = 100;    // speed
 UFO.list  = [];   // array which contains all current ufos
 UFO.cd    = 1000;  // cooldown for new ufo
 UFO.rate  = .6;   // new ufo generate rate
-UFO.loop  = null; // the new ufo generating interval
+UFO.n     = null; // the new ufo generating interval
 // static methods
 UFO.g = function() { // generate new ufo
 	if( Math.random() > UFO.rate ) return;
-	var x = Math.floor( Math.random() * (STAGE_WIDTH-100) );
-	UFO.list.push(new UFO(x));
+	new UFO(Math.floor(Math.random()*(STAGE_WIDTH-100)));
 }
 UFO.init = function() {
 	// start generating new ufo
-	UFO.loop = setInterval(UFO.g, UFO.cd);
+	UFO.n = setInterval(UFO.g, UFO.cd);
 }
-UFO.destroy = function() {
+UFO.clear = function() {
 	// stop the generate loop
-	clearInterval(UFO.loop);
+	clearInterval(UFO.n);
 	// clear current elements
 	UFO.list.destroy();
 }
@@ -216,6 +218,8 @@ function BULLET(x) {
 	this.left = this.x - BULLET.width;
 	this.right = this.x + BULLET.width;
 	this.dom = el('div').addClass('bullet').x(this.x-BULLET.width).y(this.y).debut();
+	// append
+	BULLET.list.push(this);
 }
 // move
 BULLET.prototype.loop = function() {
@@ -246,7 +250,7 @@ BULLET.speed = 3;
 BULLET.width = 24/2;
 BULLET.height= 12;
 BULLET.list  = [];
-BULLET.destroy = function() {
+BULLET.clear = function() {
 	BULLET.list.destroy();
 }
 
@@ -270,6 +274,9 @@ BOOM.height = 120/2;
 EARTH = new Object();
 EARTH.dom = null;
 EARTH.tick = null; // timeout to remove the 'hit' class
+EARTH.init = function() {
+	EARTH.dom = document.getElementById('earth');
+}
 EARTH.hit = function() {
 	// decrease hp
 	HP.decr();
@@ -304,7 +311,7 @@ HP.init = function() {
 	HP.list = [];
 	// put new
 	for( var i = 0; i < HP.hp - 1; i++ ) {
-		var hp = new HP('h');
+		new HP('h');
 	}
 }
 // when earth is hit...
@@ -318,8 +325,9 @@ HP.decr = function() {
 	// decr hp
 	HP.hp--;
 	// check gameover?
-	if( HP.hp == 0 )
+	if( HP.hp == 0 ) {
 		end();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////// MAIN 
@@ -329,11 +337,10 @@ function init() {
 	// cache elements which always exists only one
 	game = document.getElementById('game');
 	stage = document.getElementById('stage');
-	board = document.getElementById('gameover');
 	score = document.getElementById('score');
 	twitter = document.getElementById('tsubuyaku');
-	EARTH.dom = document.getElementById('earth');
-	warship = new WARSHIP();
+	EARTH.init();
+	WARSHIP.init();
 	// remove the loading mask
 	document.getElementById('loading').remove();
 	// let the game play
@@ -347,24 +354,24 @@ function start() {
 	// init the score
 	GAME_SCORE = 0;
 	// init elements
-	warship.init();
+	WARSHIP.init();
 	HP.init();
 	UFO.init();
-	// show the game stage
-	game.active();
 	// init TIMER
 	TIMER();
 	// start the main loop
 	loop();
+	// show the game stage
+	game.active();
 }
 
 // ends the game and clear the stage
 function end() {
 	// set GAMEOVER to true
 	GAME_OVER = true;
-	// call destroy methods
-	UFO.destroy();
-	BULLET.destroy();
+	// call clear methods
+	UFO.clear();
+	BULLET.clear();
 	// fill the score
 	score.textContent = GAME_SCORE;
 	// prepare the twitter share link
@@ -376,21 +383,18 @@ function end() {
 // update game every frame 
 function loop() {
 	// if GAME_OVER then break the loop
-	if( GAME_OVER )
-		return;
+	if( GAME_OVER ) return;
 	// move forward current elements
 	var i, elapsed = TIMER();
 	// never cache UFO.list.length here! because ufo.loop will modify the array async
 	for( i = 0; i < UFO.list.length; i++ ) {
 		UFO.list[i].loop(elapsed);
 	}
-	// move bullets
 	for( i = 0; i < BULLET.list.length; i++ ) {
 		BULLET.list[i].loop();
 	}
-	// and warship
-	warship.loop();
-	// do loop
+	WARSHIP.loop();
+	// next loop
 	requestAnimationFrame(loop);
 }
 
