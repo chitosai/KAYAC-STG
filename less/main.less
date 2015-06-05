@@ -24,6 +24,21 @@ div{
 // 
 // game stage
 // 
+#loading{
+	background: rgba(0, 0, 0, .8);
+	position: fixed;
+	z-index: 9999;
+	.fullfill;
+	p{
+		animation: t 3s ease infinite;
+		color: #fff;
+		font-size: 48px;
+		text-align: center;
+		text-shadow: 0 0 3px;
+		height: 50px;
+		.center;
+	}
+}
 #game{
 	background: url('bg.png') #0B0B0C;
 	width: 465px;
@@ -196,6 +211,11 @@ div{
 //
 // animations
 // 
+@keyframes t{
+	0%{ text-shadow: 0 0 3px;}
+	50%{ text-shadow: 0 0 50px;}
+	100%{ text-shadow: 0 0 3px;}
+}
 @keyframes fadeout{
 	0% { opacity: 1; }
 	100%{ opacity: 0;}

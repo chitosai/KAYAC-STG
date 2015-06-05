@@ -334,6 +334,8 @@ function init() {
 	twitter = document.getElementById('tsubuyaku');
 	EARTH.dom = document.getElementById('earth');
 	warship = new WARSHIP();
+	// remove the loading mask
+	document.getElementById('loading').remove();
 	// let the game play
 	start();
 }
