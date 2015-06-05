@@ -12,65 +12,62 @@ TWITTER_TEXT = 'Just now when you were asleep I have protected the earth by shoo
 function el(tagName) {
 	return document.createElement(tagName);
 }
+// extends DOM methods
 // class control
-Object.prototype.addClass = function(className) {
+Element.prototype.addClass = function(className) {
 	this.classList.add(className);
 	return this;
 }
-Object.prototype.removeClass = function(className) {
+Element.prototype.removeClass = function(className) {
 	this.classList.remove(className);
 	return this;
 }
-Object.prototype.hasClass = function(className) {
+Element.prototype.hasClass = function(className) {
 	return this.classList.contains(className);
 }
 // set id
-Object.prototype.setId = function(id) {
+Element.prototype.setId = function(id) {
 	this.id = id;
 	return this;
 }
 // set element coordinate
-Object.prototype.x = function(x) {
+Element.prototype.x = function(x) {
 	x = typeof x == 'number' ? x + 'px' : x;
 	this.style.left = x;
 	return this;
 }
-Object.prototype.y = function(y) {
+Element.prototype.y = function(y) {
 	y = typeof y == 'number' ? y + 'px' : y;
 	this.style.top = y;
 	return this;
 }
 // force the element to reflow by setting element's width
-Object.prototype.reflow = function() {
+Element.prototype.reflow = function() {
 	this.style.width = '100%';
 	return this;
 }
 // put the element onto the stage
-Object.prototype.debut = function() {
+Element.prototype.debut = function() {
 	document.getElementById('stage').appendChild(this);
 	return this;
 }
 // remove an element's all child nodes
-Object.prototype.empty = function() {
+Element.prototype.empty = function() {
 	while(this.lastChild) {
 		this.removeChind(this.lastChild);
 	}
 	return this;
 }
 // quick method
-Object.prototype.active = function() {
+Element.prototype.active = function() {
 	this.addClass('active');
 	return this;
 }
-Object.prototype.deactive = function() {
+Element.prototype.deactive = function() {
 	this.removeClass('active');
 	return this;
 }
-// bind events in jQuery style
-Object.prototype.on = function(event, callback) {
-	this.addEventListener(event, callback);
-	return this;
-}
+// extens Array
 // add remove method for array
 Array.prototype.remove = function(el) {
 	var index = this.indexOf(el);
@@ -88,6 +85,11 @@ Array.prototype.destroy = function() {
 		// delete itself
 		delete tmp;
 	}
+}
+// bind events in jQuery style
+Object.prototype.on = function(event, callback) {
+	this.addEventListener(event, callback);
+	return this;
 }
 // return the elapsed time from the last call
 function TIMER() {
@@ -191,7 +193,7 @@ UFO.loop  = null; // the new ufo generating interval
 // static methods
 UFO.g = function() { // generate new ufo
 	if( Math.random() > UFO.rate ) return;
-	var x = Math.floor( Math.random() * STAGE_WIDTH-100 );
+	var x = Math.floor( Math.random() * STAGE_WIDTH-100 ) + 50;
 	UFO.list.push(new UFO(x));
 }
 
