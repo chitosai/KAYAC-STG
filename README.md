@@ -1,6 +1,8 @@
 # KAYAC-STG
 KAYAC的笔试题，一个迷你STG游戏
 
+Here's a [Live DEMO](http://rakuen.thec.me/KAYAC-STG/)
+
 ---
 
 ## 課題
