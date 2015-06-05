@@ -1,7 +1,7 @@
 // global variables
 GAME_OVER = true;
 GAME_SCORE = 0;
-GAME_LIFE = 4;
+GAME_LIFE = 4; // how many lives player has
 STAGE_WIDTH = 465;
 STAGE_HEIGHT = 465;
 TWITTER_API = 'https://twitter.com/intent/tweet?text=';
@@ -303,7 +303,7 @@ HP.init = function() {
 	HP.bar = document.getElementById('hpbar').empty();
 	HP.list = [];
 	// put new
-	for( var i = 0; i < 3; i++ ) {
+	for( var i = 0; i < HP.hp - 1; i++ ) {
 		var hp = new HP('h');
 	}
 }
