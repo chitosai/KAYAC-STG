@@ -341,4 +341,5 @@ function loop() {
 	requestAnimationFrame(loop);
 }
 
+// make sure all images are loaded before game inits
 window.onload = init;
