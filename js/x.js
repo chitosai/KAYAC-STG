@@ -6,6 +6,12 @@ Array.prototype.remove = function(el) {
 	this.splice(index, 1);
 	return this;
 }
+// extends remove method for IE
+if( typeof Element.prototype.remove == 'undefined' ) {
+	Element.prototype.remove = function() {
+		this.parentNode.removeChild(this);
+	}
+}
 // load attributes from super class
 Object.prototype.super = function(x, y) {
 	var c = this.constructor;
