@@ -1,17 +1,75 @@
 // global variables
 GAME_OVER = true;
 GAME_SCORE = 0;
+GAME_LIFE = 4;
 STAGE_WIDTH = 465;
 STAGE_HEIGHT = 465;
 TWITTER_API = 'https://twitter.com/intent/tweet?text=';
 TWITTER_TEXT = 'Just now when you were asleep I have protected the earth by shooting {$score} ufo down!';
 
-// quick method
-$.fn.active = function() {
-	$(this).addClass('active');
+/////////////////////////////////////////////////////////////////////////////////////////////////// utilities
+// create dom element
+function el(tagName) {
+	return document.createElement(tagName);
 }
-$.fn.deactive = function() {
-	$(this).removeClass('active');
+// class control
+Object.prototype.addClass = function(className) {
+	this.classList.add(className);
+	return this;
+}
+Object.prototype.removeClass = function(className) {
+	this.classList.remove(className);
+	return this;
+}
+Object.prototype.hasClass = function(className) {
+	return this.classList.contains(className);
+}
+// set id
+Object.prototype.setId = function(id) {
+	this.id = id;
+	return this;
+}
+// set element coordinate
+Object.prototype.x = function(x) {
+	x = typeof x == 'number' ? x + 'px' : x;
+	this.style.left = x;
+	return this;
+}
+Object.prototype.y = function(y) {
+	y = typeof y == 'number' ? y + 'px' : y;
+	this.style.top = y;
+	return this;
+}
+// force the element to reflow by setting element's width
+Object.prototype.reflow = function() {
+	this.style.width = '100%';
+	return this;
+}
+// put the element onto the stage
+Object.prototype.debut = function() {
+	document.getElementById('stage').appendChild(this);
+	return this;
+}
+// remove an element's all child nodes
+Object.prototype.empty = function() {
+	while(this.lastChild) {
+		this.removeChind(this.lastChild);
+	}
+	return this;
+}
+// quick method
+Object.prototype.active = function() {
+	this.addClass('active');
+	return this;
+}
+Object.prototype.deactive = function() {
+	this.removeClass('active');
+	return this;
+}
+// bind events in jQuery style
+Object.prototype.on = function(event, callback) {
+	this.addEventListener(event, callback);
+	return this;
 }
 // add remove method for array
 Array.prototype.remove = function(el) {
@@ -19,6 +77,17 @@ Array.prototype.remove = function(el) {
 	if( index == -1 ) return false;
 	this.splice(index, 1);
 	return this;
+}
+// empty a array, removing its all children and the children's dom
+Array.prototype.destroy = function() {
+	var tmp = null;
+	while( tmp = this.pop() ) {
+		// remove its dom
+		if( typeof tmp.dom != 'undefined' && typeof tmp.dom.remove == 'function' )
+			tmp.dom.remove();
+		// delete itself
+		delete tmp;
+	}
 }
 // return the elapsed time from the last call
 function TIMER() {
@@ -34,9 +103,9 @@ TIMER.last = new Date().getTime();
 function WARSHIP() {
 	var self = this;
 	self.x = 240;
-	self.dom = $('<div>').attr('id', 'warship').css('x', self.x - WARSHIP.width).appendTo(stage);
+	self.dom = el('div').setId('warship').x(self.x - WARSHIP.width).debut();
 	// bind keydown event
-	$(window).on('keydown', function(e) {
+	window.on('keydown', function(e) {
 		WARSHIP.key[e.keyCode] = true;
 		// fire
 		if( e.keyCode == 90 ) self.fire();
@@ -46,7 +115,7 @@ function WARSHIP() {
 }
 // move warship on keydown
 WARSHIP.prototype.loop = function() {
-	// map key
+	// dispatch
 	if( WARSHIP.key[37] ) {
 		this.x -= WARSHIP.speed; 
 		this.x = this.x > 0 ? this.x : 0;
@@ -56,7 +125,7 @@ WARSHIP.prototype.loop = function() {
 		this.x = this.x < STAGE_WIDTH ? this.x : STAGE_WIDTH;
 	}
 	// move the ship
-	this.dom.css('left', this.x - WARSHIP.width);
+	this.dom.x(this.x - WARSHIP.width);
 }
 // fire!
 WARSHIP.prototype.fire = function() {
@@ -66,7 +135,7 @@ WARSHIP.prototype.fire = function() {
 // put the warship to its initial position
 WARSHIP.prototype.init = function() {
 	this.x = 240;
-	this.dom.css('x', this.x);
+	this.dom.x(this.x);
 }
 // static var
 WARSHIP.width = 96/2;
@@ -82,15 +151,15 @@ function UFO(x) {
 	// cache the left & right border of this ufo
 	this.left = this.x - UFO.width;
 	this.right = this.x + UFO.width;
-	this.dom = $('<div>').addClass('ufo').css({'left': this.x - UFO.width, 'top': this.y}).appendTo(stage);
+	this.dom = el('div').addClass('ufo').x(this.x-UFO.width).y(this.y).debut();
 }
 // instance methods
 // main loop
 UFO.prototype.loop = function() {
 	this.y += UFO.speed;
 	// check if current ufo has hit the earth
-	if( this.y < (STAGE_HEIGHT-120) ) 
-		this.dom.css('top', this.y);
+	if( this.y < STAGE_HEIGHT-120 ) 
+		this.dom.y(this.y);
 	else {
 		// hit the earth!
 		this.destroy();
@@ -120,9 +189,9 @@ UFO.cd    = 1000;  // cooldown for new ufo
 UFO.rate  = .6;   // new ufo generate rate
 UFO.loop  = null; // the new ufo generating interval
 // static methods
-UFO.g     = function() { // generate new ufo
+UFO.g = function() { // generate new ufo
 	if( Math.random() > UFO.rate ) return;
-	var x = Math.floor( Math.random() * (STAGE_WIDTH-100) ) + 50 ;
+	var x = Math.floor( Math.random() * STAGE_WIDTH-100 );
 	UFO.list.push(new UFO(x));
 }
 
@@ -135,12 +204,12 @@ function BULLET(x) {
 	// cache the left & right border of this bullet
 	this.left = this.x - BULLET.width;
 	this.right = this.x + BULLET.width;
-	this.dom = $('<div>').addClass('bullet').css({'left': this.x - BULLET.width, 'top': this.y}).appendTo(stage);
+	this.dom = el('div').addClass('bullet').x(this.x-BULLET.width).y(this.y).debut();
 }
 // move
 BULLET.prototype.loop = function() {
 	this.y -= BULLET.speed;
-	this.dom.css('top', this.y);
+	this.dom.y(this.y);
 	// over border check
 	if( this.y < -BULLET.height ) 
 		this.destroy();
@@ -171,7 +240,7 @@ BULLET.list  = [];
 
 function BOOM(x, y) {
 	var self = this;
-	self.dom = $('<div>').addClass('boom').css({'left': x - BOOM.width, 'top': y - BOOM.height}).appendTo(stage);
+	self.dom = el('div').addClass('boom').x(x-BOOM.width).y(y-BOOM.height).debut();
 	// run self-destroy function
 	setTimeout(function() {
 		self.dom.remove();
@@ -190,9 +259,9 @@ EARTH.tick = null; // timeout to remove the 'hit' class
 EARTH.hit = function() {
 	// decrease hp
 	HP.decr();
-	// set:width to trigger reflow to force replay hit animation every time
+	// reflow the element to force replay hit animation every time
 	if( EARTH.dom.hasClass('hit') ) {
-		EARTH.dom.removeClass('hit').width('100%');
+		EARTH.dom.removeClass('hit').reflow();
 		clearTimeout(EARTH.tick);
 	}
 	EARTH.dom.addClass('hit');
@@ -205,15 +274,19 @@ EARTH.hit = function() {
 
 HP = function(type) {
 	if( type != 'h' && type != 'd' ) return;
-	this.dom = $('<span>').addClass(type).appendTo(HP.bar);
+	this.dom = el('span').addClass(type);
+	HP.bar.appendChild(this.dom);
 	HP.list.push(this);
 }
+HP.hp = GAME_LIFE;
+HP.bar = null;
+HP.list = [];
 // initialize the hp bar: put 3 healthy heart inside
 HP.init = function() {
 	// reset hp
-	HP.hp = 4;
+	HP.hp = GAME_LIFE;
 	// clear former hp bar
-	HP.bar = $('#hpbar').empty();
+	HP.bar = document.getElementById('hpbar').empty();
 	HP.list = [];
 	// put new
 	for( var i = 0; i < 3; i++ ) {
@@ -234,9 +307,6 @@ HP.decr = function() {
 	if( HP.hp == 0 )
 		end();
 }
-HP.hp = 4;
-HP.bar = null;
-HP.list = [];
 
 ////////////////////////////////////////////////////////////////////////////////////////////////// MAIN 
 
@@ -245,13 +315,13 @@ HP.list = [];
 // call this method only one time after the page loads completely
 // it caches elements which always has only one instance
 function init() {
-	game  = $('#game');
-	stage = $('#stage');
-	blink = $('#blink');
-	board = $('#gameover');
-	score = $('#score');
-	twitter = $('#tsubuyaku');
-	EARTH.dom = $('#earth');
+	game  = document.getElementById('game');
+	stage = document.getElementById('stage');
+	blink = document.getElementById('blink');
+	board = document.getElementById('gameover');
+	score = document.getElementById('score');
+	twitter = document.getElementById('tsubuyaku');
+	EARTH.dom = document.getElementById('earth');
 	warship = new WARSHIP();
 	// 
 	start();
@@ -281,8 +351,9 @@ function end() {
 	GAME_OVER = true;
 	// stop the generate loop
 	clearInterval(UFO.loop);
-	// clear ufos
-	UFO.list = [];
+	// clear current elements
+	UFO.list.destroy();
+	BULLET.list.destroy();
 	// show the score board
 	deactive_stage();
 }
@@ -325,13 +396,11 @@ function deactive_stage() {
 	blink.active();
 	setTimeout(function() { blink.deactive(); }, 1000);
 	// fill the score
-	score.text(GAME_SCORE);
+	score.textContent = GAME_SCORE;
 	// prepare the twitter share link
-	twitter.attr('href', TWITTER_API + TWITTER_TEXT.replace('{$score}', GAME_SCORE));
+	twitter.href = TWITTER_API + TWITTER_TEXT.replace('{$score}', GAME_SCORE);
 	// show score board
 	board.active();
-	// remove elements
-	$('.ufo, .bullet, .bom').remove();
 }
 
 window.onload = init;
