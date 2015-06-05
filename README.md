@@ -1,5 +1,5 @@
 # KAYAC-STG
-KAYAC的笔试题，一个迷你STG游戏
+KAYAC的笔试题，一个迷你STG游戏 - 左右键移动、z键射击
 
 Here's a [Live DEMO](http://rakuen.thec.me/KAYAC-STG/)
 
