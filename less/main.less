@@ -7,7 +7,7 @@ div{
 	margin: 0;
 	padding: 0;
 }
-// this mixin makes a dom center of parent relative element both horizonlly and vertically
+// this mixin makes an element placed center both horizonlly and vertically
 .center{
 	position: absolute;
 	top: 0;
@@ -22,15 +22,17 @@ div{
 }
 
 // 
-// game stage
-// 
+#preloader{
+	position: absolute;
+	left: -99999px;
+}
 #loading{
 	background: rgba(0, 0, 0, .8);
 	position: fixed;
 	z-index: 9999;
 	.fullfill;
 	p{
-		animation: t 3s ease infinite;
+		animation: loading 3s ease infinite;
 		color: #fff;
 		font-size: 48px;
 		text-align: center;
@@ -38,7 +40,7 @@ div{
 		height: 50px;
 		.center;
 	}
-}
+} 
 #game{
 	background: url('bg.png') #0B0B0C;
 	width: 465px;
@@ -61,79 +63,6 @@ div{
 }
 #stage{
 	display: none;
-	position: relative;
-	overflow: hidden;
-	z-index: 1;
-	.fullfill;
-	& > div{
-		position: absolute; // only a few children are not absolute positioned, so just override this for them
-	}
-}
-#earth{
-	background: url('earth.png');
-	width: 465px;
-	height: 45px;
-	bottom: -1px;
-	left: 0;
-	&::after{
-		background: url('earth.png') 0 -50px;
-		content: "";
-		opacity: 0;
-		position: absolute;
-		left: 0;
-		bottom: 0;
-		.fullfill;
-	}
-	&.hit::after{
-		animation: hit 1.5s linear;
-	}
-}
-#hpbar{
-	margin: 20px;
-	z-index: 9;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 1;
-	span{
-		background: url('life.png') no-repeat;
-		display: inline-block;
-		margin-right: 5px;
-		width: 30px;
-		height: 30px;
-	}
-	.h{
-		background-position: 0 0;
-	}
-	.d{
-		background-position: 0 -50px;
-	}
-}
-#warship{
-	background: url('warship.png') no-repeat;
-	width: 98px;
-	height: 40px;
-	bottom: 30px;
-	left: 190px;
-	z-index: 2;
-}
-.ufo{
-	background: url('ufo.png');
-	width: 100px;
-	height: 80px;
-}
-.bullet{
-	background: url('bullet.png');
-	width: 24px;
-	height: 12px;
-}
-.boom{
-	background: url('bom.png');
-	width: 120px;
-	height: 120px;
-	opacity: 0;
-	z-index: 3;
-	animation: fadeout 1s ease;
 }
 #gameover{
 	background: rgba(0, 0, 0, .75);
@@ -145,7 +74,7 @@ div{
 	z-index: 2;
 	.fullfill;
 	&::after{ // this is the mysterious white light
-		animation: blink 3s cubic-bezier(0.215, 0.61, 0.355, 1);
+		animation: flash 3s cubic-bezier(0.215, 0.61, 0.355, 1);
 		background: #fff;
 		content: "";
 		opacity: 0;
@@ -211,23 +140,13 @@ div{
 //
 // animations
 // 
-@keyframes t{
+@keyframes loading{
 	0%{ text-shadow: 0 0 3px;}
 	50%{ text-shadow: 0 0 50px;}
 	100%{ text-shadow: 0 0 3px;}
 }
-@keyframes fadeout{
-	0% { opacity: 1; }
-	100%{ opacity: 0;}
-}
-@keyframes blink{
+@keyframes flash{
 	0% { opacity: 0; }
 	30% { opacity: 1; }
 	100% { opacity: 0; }
-}
-@keyframes hit{
-	0%{ opacity: 1; }
-	25%{ opacity: 0; }
-	50%{ opacity: 1; }
-	75%{ opacity: 0; }
 }

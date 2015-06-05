@@ -9,10 +9,7 @@
 	<div id="loading"><p>Loading asserts, please wait...</p></div>
 	<div id="game">
 		<div id="hpbar"></div>
-		<div id="stage">
-			<div id="earth"></div>
-			<div id="warship"></div>
-		</div>
+		<canvas id="stage"></canvas>
 		<div id="gameover">
 			<div id="board">
 				<p>SCORE</p>
@@ -23,5 +20,15 @@
 		</div>
 	</div>
 	<script src="js/x.js"></script>
+	<script src="js/config.js"></script>
+	<!-- pre load images -->
+	<div id="preloader">
+		<img src="assets/bom.png" id="boom">
+		<img src="assets/bullet.png" id="bullet">
+		<img src="assets/earth.png" id="earth">
+		<img src="assets/life.png" id="life">
+		<img src="assets/ufo.png" id="ufo">
+		<img src="assets/warship.png" id="warship">
+	</div>
 </body>
 </html>
