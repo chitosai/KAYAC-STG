@@ -274,7 +274,12 @@ function init() {
 	canvas = document.getElementById('stage');
 	canvas.width = STAGE_WIDTH;
 	canvas.height = STAGE_HEIGHT;
-	stage = canvas.getContext('2d');
+	ctx = canvas.getContext('2d');
+	// back buffer
+	buffer = document.createElement('canvas');
+	buffer.width = STAGE_WIDTH;
+	buffer.height = STAGE_HEIGHT;
+	stage = buffer.getContext('2d');
 	// cache elements which always exists only one
 	game = document.getElementById('game');
 	score = document.getElementById('score');
@@ -325,6 +330,8 @@ function end() {
 function loop() {
 	// if GAME_OVER then break the loop
 	if( GAME_OVER ) return;
+	// clear current image on buffer
+	ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
 	stage.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
 	// move forward current elements
 	var i, elapsed = TIMER();
@@ -335,6 +342,8 @@ function loop() {
 	earth.loop();
 	hp.loop();
 	warship.loop();
+	// swap buffer
+	ctx.drawImage(buffer, 0, 0);
 	// next loop
 	requestAnimationFrame(loop);
 }
