@@ -53,9 +53,8 @@ Element.prototype.debut = function() {
 }
 // remove an element's all child nodes
 Element.prototype.empty = function() {
-	while(this.lastChild) {
-		this.removeChind(this.lastChild);
-	}
+	while(this.lastChild) 
+		this.removeChild(this.lastChild);
 	return this;
 }
 // quick method
@@ -193,8 +192,18 @@ UFO.loop  = null; // the new ufo generating interval
 // static methods
 UFO.g = function() { // generate new ufo
 	if( Math.random() > UFO.rate ) return;
-	var x = Math.floor( Math.random() * STAGE_WIDTH-100 ) + 50;
+	var x = Math.floor( Math.random() * (STAGE_WIDTH-100) );
 	UFO.list.push(new UFO(x));
+}
+UFO.init = function() {
+	// start generating new ufo
+	UFO.loop = setInterval(UFO.g, UFO.cd);
+}
+UFO.destroy = function() {
+	// stop the generate loop
+	clearInterval(UFO.loop);
+	// clear current elements
+	UFO.list.destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////// BULLET
@@ -237,6 +246,9 @@ BULLET.speed = 3;
 BULLET.width = 24/2;
 BULLET.height= 12;
 BULLET.list  = [];
+BULLET.destroy = function() {
+	BULLET.list.destroy();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////// BOOM
 
@@ -312,20 +324,17 @@ HP.decr = function() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////// MAIN 
 
-// main logical
-
-// call this method only one time after the page loads completely
-// it caches elements which always has only one instance
+// prepares everything
 function init() {
-	game  = document.getElementById('game');
+	// cache elements which always exists only one
+	game = document.getElementById('game');
 	stage = document.getElementById('stage');
-	blink = document.getElementById('blink');
 	board = document.getElementById('gameover');
 	score = document.getElementById('score');
 	twitter = document.getElementById('tsubuyaku');
 	EARTH.dom = document.getElementById('earth');
 	warship = new WARSHIP();
-	// 
+	// let the game play
 	start();
 }
 
@@ -335,14 +344,12 @@ function start() {
 	GAME_OVER = false;
 	// init the score
 	GAME_SCORE = 0;
-	// move warship to initial position
+	// init elements
 	warship.init();
-	// initialize hp bar
 	HP.init();
+	UFO.init();
 	// show the game stage
-	active_stage();
-	// start generating new ufo
-	UFO.loop = setInterval(UFO.g, UFO.cd);
+	game.active();
 	// start the main loop
 	loop();
 }
@@ -351,58 +358,36 @@ function start() {
 function end() {
 	// set GAMEOVER to true
 	GAME_OVER = true;
-	// stop the generate loop
-	clearInterval(UFO.loop);
-	// clear current elements
-	UFO.list.destroy();
-	BULLET.list.destroy();
-	// show the score board
-	deactive_stage();
+	// call destroy methods
+	UFO.destroy();
+	BULLET.destroy();
+	// fill the score
+	score.textContent = GAME_SCORE;
+	// prepare the twitter share link
+	twitter.href = TWITTER_API + TWITTER_TEXT.replace('{$score}', GAME_SCORE);
+	// show score board
+	game.deactive();
 }
 
-// every frame update game process
+// update game every frame 
 function loop() {
 	// if GAME_OVER then break the loop
-	if( GAME_OVER ) {
+	if( GAME_OVER )
 		return;
-	}
 	// move forward current elements
 	var i;
 	// never cache UFO.list.length here! because ufo.loop will modify the array async
 	for( i = 0; i < UFO.list.length; i++ ) {
 		UFO.list[i].loop();
 	}
-	// warship move loop
-	warship.loop();
 	// move bullets
 	for( i = 0; i < BULLET.list.length; i++ ) {
 		BULLET.list[i].loop();
 	}
+	// and warship
+	warship.loop();
 	// do loop
 	requestAnimationFrame(loop);
-}
-
-// put all the elements to their inital position and show the stage
-function active_stage() {
-	// hide score board
-	board.deactive();
-	// show game stage, rock!
-	stage.active();
-}
-
-// hide the stage and remove dynamic elements
-function deactive_stage() {
-	// hide stage
-	stage.deactive();
-	// blink animation
-	blink.active();
-	setTimeout(function() { blink.deactive(); }, 1000);
-	// fill the score
-	score.textContent = GAME_SCORE;
-	// prepare the twitter share link
-	twitter.href = TWITTER_API + TWITTER_TEXT.replace('{$score}', GAME_SCORE);
-	// show score board
-	board.active();
 }
 
 window.onload = init;
