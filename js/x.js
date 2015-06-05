@@ -97,7 +97,7 @@ function TIMER() {
 	TIMER.last = now;
 	return elapsed;
 }
-TIMER.last = new Date().getTime();
+TIMER.last = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////// WARSHIP
 
@@ -156,8 +156,8 @@ function UFO(x) {
 }
 // instance methods
 // main loop
-UFO.prototype.loop = function() {
-	this.y += UFO.speed;
+UFO.prototype.loop = function(elapsed) {
+	this.y += UFO.speed * elapsed / 1000;
 	// check if current ufo has hit the earth
 	if( this.y < STAGE_HEIGHT-120 ) 
 		this.dom.y(this.y);
@@ -184,7 +184,7 @@ UFO.prototype.destroy = function() {
 // static vars
 UFO.width = 100/2;  // pixel width
 UFO.height= 80;
-UFO.speed = 2;    // speed
+UFO.speed = 100;    // speed
 UFO.list  = [];   // array which contains all current ufos
 UFO.cd    = 1000;  // cooldown for new ufo
 UFO.rate  = .6;   // new ufo generate rate
@@ -350,6 +350,8 @@ function start() {
 	UFO.init();
 	// show the game stage
 	game.active();
+	// init TIMER
+	TIMER();
 	// start the main loop
 	loop();
 }
@@ -375,10 +377,10 @@ function loop() {
 	if( GAME_OVER )
 		return;
 	// move forward current elements
-	var i;
+	var i, elapsed = TIMER();
 	// never cache UFO.list.length here! because ufo.loop will modify the array async
 	for( i = 0; i < UFO.list.length; i++ ) {
-		UFO.list[i].loop();
+		UFO.list[i].loop(elapsed);
 	}
 	// move bullets
 	for( i = 0; i < BULLET.list.length; i++ ) {
