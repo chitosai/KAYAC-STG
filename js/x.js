@@ -41,7 +41,7 @@ TIMER.last = 0;
 function WARSHIP() {
 	this.super();
 	var self = this;
-	// bind keydown event
+	// desktop keyboard events
 	window.addEventListener('keydown', function(e) {
 		WARSHIP.key[e.keyCode] = true;
 		// fire
@@ -49,6 +49,23 @@ function WARSHIP() {
 	});
 	window.addEventListener('keyup', function(e) {
 		WARSHIP.key[e.keyCode] = false;
+	});
+	// for mobile
+	window.addEventListener('touchstart', function(e) {
+		LAST_TOUCH = e.touches[0].clientX;
+		// tap
+		IS_TAP = true;
+	});
+	window.addEventListener('touchmove', function(e) {
+		// cancel tap event
+		IS_TAP = false;
+		// move warship
+		var x = e.touches[0].clientX;
+		self.x += (x-LAST_TOUCH);
+		LAST_TOUCH = x;
+	});
+	window.addEventListener('touchend', function(e) {
+		if( IS_TAP ) self.fire();
 	});
 }
 // move warship on keydown
