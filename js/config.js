@@ -7,8 +7,6 @@ UFO.rate      = .6;   // new ufo generate rate
 BULLET.speed  = 4;
 BOOM.lasts    = 1000; // how long will boom effect lasts
 
-GAME_OVER     = true;
-GAME_SCORE    = 0;
 STAGE_WIDTH   = 465;
 STAGE_HEIGHT  = 465;
 TWITTER_API   = 'https://twitter.com/intent/tweet?text=';
