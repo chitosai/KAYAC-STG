@@ -139,7 +139,7 @@ UFO.n     = null; // the new ufo generating interval
 // static methods
 UFO.g = function() { // generate new ufo
 	if( Math.random() > UFO.rate ) return;
-	new UFO(Math.floor(Math.random()*(STAGE_WIDTH-100)));
+	new UFO(Math.floor(Math.random()*(STAGE_WIDTH-100))+30);
 }
 UFO.init = function() {
 	// start generating new ufo
